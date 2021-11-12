@@ -57,7 +57,6 @@ training_batches = ImageDataGenerator(
                                         preprocessing_function=keras.applications.mobilenet.preprocess_input
                                      ).flow_from_directory(directory=trainingsetPath, 
                                                            target_size=(224,224), batch_size=10)
-
 validation_batches = ImageDataGenerator(
                                         preprocessing_function=keras.applications.mobilenet.preprocess_input
                                      ).flow_from_directory(directory=validationsetPath, 

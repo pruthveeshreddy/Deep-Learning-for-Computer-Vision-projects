@@ -30,7 +30,7 @@ warnings.simplefilter('ignore')
 # initialize the initial learning rate, number of epochs to train for,
 # and batch size
 LEARNING_RATE      = 1e-4 ## 1e-4 = 0.0001
-NO_ON_EPOCHS       = 2  
+NO_ON_EPOCHS       = 20  
 BATCH_SIZE         = 32   ## For SGD
 DIRECTORY          = r".\dataset"
 CATEGORIES         = ["with_mask", "without_mask"]
@@ -75,7 +75,7 @@ training_batches = ImageDataGenerator(
                                         height_shift_range=0.2,
                                         shear_range=0.15, fill_mode="nearest"
                                      ).flow_from_directory(directory=TRAININGSET_PATH, 
-                                                           target_size=(224,224), batch_size=10)
+                                                           target_size=(224,224), batch_size=BATCH_SIZE)
 print("training_batches:",len(training_batches))
 validation_batches = ImageDataGenerator(
                                         preprocessing_function=preprocess_input,
@@ -83,7 +83,7 @@ validation_batches = ImageDataGenerator(
                                         height_shift_range=0.2,
                                         shear_range=0.15, fill_mode="nearest"
                                      ).flow_from_directory(directory=VALIDATIONSET_PATH, 
-                                                           target_size=(224,224), batch_size=10)
+                                                           target_size=(224,224), batch_size=BATCH_SIZE)
                                                           
 testing_batches = ImageDataGenerator(
                                         preprocessing_function=preprocess_input,
@@ -91,7 +91,7 @@ testing_batches = ImageDataGenerator(
                                         height_shift_range=0.2,
                                         shear_range=0.15, fill_mode="nearest"
                                      ).flow_from_directory(directory=TESTINGSET_PATH, 
-                                                           target_size=(224,224), batch_size=10, 
+                                                           target_size=(224,224), batch_size=BATCH_SIZE, 
                                                            shuffle=False)
 
                                                            
@@ -116,7 +116,7 @@ headModel = Dense(NO_OF_CLASSES, activation="softmax")(headModel)
 
 ## Create The Model
 maskDetectModel = Model(inputs=baseModel.input, outputs=headModel)
-maskDetectModel.summary()
+#maskDetectModel.summary()
 
 ## No Updates For The Weight Of All Layers In First Backbropagation Process 
 for layer in baseModel.layers:
@@ -131,9 +131,9 @@ opt = Adam(lr=LEARNING_RATE,
 maskDetectModel.compile(optimizer=opt, loss="binary_crossentropy", metrics=["accuracy"])
 
 
-### Tain The Model
-print("\n\nTraining The Model...")
-maskDetectModel.fit(x=training_batches, batch_size=BATCH_SIZE,
+### Train The Model
+print("Done\n\nTraining The Model...")
+maskDetectModel.fit(x=training_batches, 
 	                steps_per_epoch=len(training_batches),
 	                validation_data=(validation_batches),
 	                validation_steps=len(validation_batches),
@@ -141,7 +141,7 @@ maskDetectModel.fit(x=training_batches, batch_size=BATCH_SIZE,
 
 
 ### Test The Model (Using Testing Set --> New Data)
-print("\n\nEvaluating The Model...")
+print("Done\n\nEvaluating The Model...")
 predictions = maskDetectModel.predict(x=testing_batches, batch_size=BATCH_SIZE, verbose=0)
 predictions = predictions.argmax(axis=1)
 
@@ -150,10 +150,10 @@ y_test = testing_batches.classes
 report = classification_report(y_test, predictions, target_names=oneHotEncoder.classes_)
 cm     = confusion_matrix(y_true=y_test, y_pred=predictions)
 
-print('Classification Report:\n',report)
-print('Confusion Matrix:\n',cm)
+print('\nClassification Report:\n',report)
+print('\nConfusion Matrix:\n',cm)
 sns.heatmap(cm, annot=True, cmap="BuPu")
 
 ### Save The Model To The Disk
-print("Saving The Model...")
 maskDetectModel.save("mask_detector.model", save_format="h5")
+print("\nThe Model Is Saved.")
