@@ -8,7 +8,7 @@ Created on Fri Nov 12 10:52:48 2021
 import os
 import shutil
 import random
-import sns
+import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -22,7 +22,7 @@ import warnings
 warnings.simplefilter('ignore')
 
 NO_OF_CLASSES = 10
-NO_OF_EPOCHES = 5
+NO_OF_EPOCHES = 5 # 30
 os.chdir(r"./Sign-Language-Digits-Dataset-master/Dataset/")
 
 
@@ -86,7 +86,7 @@ output = Dense(units=NO_OF_CLASSES, activation='softmax')(x)
 signLangModel = Model(inputs=trainedModel.input, outputs=output)
 #signLangModel.summary()
 
-## No Updates For The Weight Of Some Layers In The Backbropagation Process
+## No Updates For The Weight Of Some Layers In First Backbropagation Process
 for layer in signLangModel.layers[:-23]:
     layer.trainable = False
 #signLangModel.summary()
